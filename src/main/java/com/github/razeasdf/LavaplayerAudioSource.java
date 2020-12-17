@@ -7,18 +7,18 @@ import org.javacord.api.audio.AudioSource;
 import org.javacord.api.audio.AudioSourceBase;
 
 public class LavaplayerAudioSource extends AudioSourceBase {
-    private final AudioPlayer audioPlayer;
+    private final AudioPlayer player;
     private AudioFrame lastFrame;
 
     /**
      * Creates a new lavaplayer audio source.
      *
-     * @param api         A discord api instance.
-     * @param audioPlayer An audio player from Lavaplayer.
+     * @param discordApi         A discord api instance.
+     * @param player An audio player from Lavaplayer.
      */
-    public LavaplayerAudioSource(DiscordApi api, AudioPlayer audioPlayer) {
-        super(api);
-        this.audioPlayer = audioPlayer;
+    public LavaplayerAudioSource(DiscordApi discordApi, AudioPlayer player) {
+        super(discordApi);
+        this.player = player;
     }
 
     @Override
@@ -36,13 +36,13 @@ public class LavaplayerAudioSource extends AudioSourceBase {
 
     @Override
     public boolean hasNextFrame() {
-        lastFrame = audioPlayer.provide();
+        lastFrame = player.provide();
         return lastFrame != null;
     }
 
     @Override
     public AudioSource copy() {
-        return new LavaplayerAudioSource(getApi(), audioPlayer);
+        return new LavaplayerAudioSource(getApi(), player);
     }
 
 }

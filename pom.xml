@@ -27,6 +27,10 @@
             <url>https://jcenter.bintray.com</url>
         </repository>
 
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
 
     </repositories>
 
@@ -49,6 +53,13 @@
             <artifactId>lavaplayer</artifactId>
             <version>1.3.63</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.MusaBrt.KCommando</groupId>
+            <artifactId>all</artifactId>
+            <version>4.2.2</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/com.github.natanbc/lavadsp -->
         <dependency>
