@@ -16,40 +16,35 @@ import org.javacord.api.audio.AudioSource;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class Main {
 
     public static void main(String[] args) {
         // Insert your bot's token here
-        String token = "Nzg4NTg2Mjg4MzE1NDk4NTA3.X9lqNg.8aXpjeSLwBWMPIfMWlB3s1bl1gU";
+        String token = System.getenv("BOT_TOKEN");
 
         DiscordApi api = new DiscordApiBuilder()
                 .setToken(token)
                 .login().join();
 
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        AudioPlayer player = playerManager.createPlayer();
+
         api.addMessageCreateListener(event -> {
             String message = event.getMessageContent();
-            if ((Pattern.matches("!music .+", message) && event.getMessageAuthor().getConnectedVoiceChannel().isPresent())) {
+
+            String[] messageTwo = message.split(" ");
+            if (messageTwo[0].equals("!music") && event.getMessageAuthor().getConnectedVoiceChannel().isPresent()) {
                 ServerVoiceChannel channel = event.getMessageAuthor().getConnectedVoiceChannel().get();
                 channel.connect().thenAccept(audioConnection -> {
 // Create a player manager
-                    AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-                    playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-                    AudioPlayer player = playerManager.createPlayer();
-                    player.setFilterFactory((track, format, output)->{
-                        TimescalePcmAudioFilter timescalePcmAudioFilter = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
-                        timescalePcmAudioFilter.setSpeed(1.2);
-                        VolumePcmAudioFilter volumePcmAudioFilter = new VolumePcmAudioFilter(output, format.channelCount, format.sampleRate);
-                        volumePcmAudioFilter.setVolume(0.2f);
-                        return Arrays.asList(volumePcmAudioFilter, timescalePcmAudioFilter);
-                    });
 
 // Create an audio source and add it to the audio connection's queue
                     AudioSource source = new LavaplayerAudioSource(api, player);
                     audioConnection.setAudioSource(source);
 
-                    String sourceLink = message.substring(7);
+                    String sourceLink = messageTwo[1];
 // You can now use the AudioPlayer like you would normally do with Lavaplayer, e.g.,
                     playerManager.loadItem(sourceLink, new AudioLoadResultHandler() {
                         @Override
@@ -76,6 +71,20 @@ public class Main {
                         }
                     });
                 });
+            }
+        });
+        api.addMessageCreateListener(event -> {
+            String message = event.getMessageContent();
+            String[] messageTwo = message.split(" ");
+            if (messageTwo[0].equals("!filter") && event.getMessageAuthor().getConnectedVoiceChannel().isPresent()) {
+                player.setFilterFactory((track, format, output) -> {
+                    TimescalePcmAudioFilter timescalePcmAudioFilter = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
+                    timescalePcmAudioFilter.setRate(Double.parseDouble(messageTwo[1]));
+                        VolumePcmAudioFilter volumePcmAudioFilter = new VolumePcmAudioFilter(output, format.channelCount, format.sampleRate);
+                        volumePcmAudioFilter.setVolume(Float.parseFloat(messageTwo[2]));
+                    return Arrays.asList(timescalePcmAudioFilter, volumePcmAudioFilter);
+                });
+                event.getChannel().sendMessage("filter applied!");
             }
         });
     }
