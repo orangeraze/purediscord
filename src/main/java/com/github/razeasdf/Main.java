@@ -1,5 +1,6 @@
 package com.github.razeasdf;
 
+import com.github.razeasdf.music.PlayerManager;
 import me.koply.kcommando.KCommando;
 import me.koply.kcommando.integration.impl.javacord.JavacordIntegration;
 import org.javacord.api.DiscordApi;
@@ -23,6 +24,9 @@ public class Main extends JavacordIntegration {
                 .setPackage("com.github.razeasdf.commands") // command classes package path
                 .setPrefix("!")
                 .build();
+
+        PlayerManager.init();
+
 
 //        discordApi.addMessageCreateListener(event -> {
 //            String message = event.getMessageContent();
