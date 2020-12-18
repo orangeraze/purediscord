@@ -7,7 +7,7 @@ public class AudioManager {
 
     /*
      * A custom class used to store
-     * all the GuildMusicManagers to unify them all.
+     * all the MusicManagers to unify them all.
      */
 
     private static final Map<Long, MusicManager> managers = new HashMap<>();
@@ -15,7 +15,7 @@ public class AudioManager {
     /**
      * Retrieves the server music manager dedicated for the server.
      * @param server the server's identification number.
-     * @return a ServerMusicManager.
+     * @return a MusicManager.
      */
     public static MusicManager get(long server) {
         // If it doesn't exist then we create one.
