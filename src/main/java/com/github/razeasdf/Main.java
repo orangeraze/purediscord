@@ -1,11 +1,13 @@
 package com.github.razeasdf;
 
 import com.github.razeasdf.music.PlayerManager;
-import me.koply.kcommando.KCommando;
-import me.koply.kcommando.integration.impl.javacord.JavacordIntegration;
+
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.json.JSONObject;
+
+import me.koply.kcommando.KCommando;
+import me.koply.kcommando.integration.impl.javacord.JavacordIntegration;
 
 public class Main extends JavacordIntegration {
 

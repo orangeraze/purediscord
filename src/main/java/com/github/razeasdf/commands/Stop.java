@@ -2,10 +2,12 @@ package com.github.razeasdf.commands;
 
 import com.github.razeasdf.music.AudioManager;
 import com.github.razeasdf.music.MusicManager;
+
+import org.javacord.api.event.message.MessageCreateEvent;
+
 import me.koply.kcommando.integration.impl.javacord.JavacordCommand;
 import me.koply.kcommando.internal.Commando;
 import me.koply.kcommando.internal.KRunnable;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 @Commando(name = "Stop", aliases = "stop")
 public class Stop extends JavacordCommand {

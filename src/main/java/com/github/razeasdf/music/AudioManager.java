@@ -14,6 +14,7 @@ public class AudioManager {
 
     /**
      * Retrieves the server music manager dedicated for the server.
+     *
      * @param server the server's identification number.
      * @return a MusicManager.
      */

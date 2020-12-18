@@ -17,6 +17,7 @@ public class MusicManager {
 
     /**
      * Creates a player and a track scheduler.
+     *
      * @param manager Audio player manager to use for creating the player.
      */
     public MusicManager(AudioPlayerManager manager) {

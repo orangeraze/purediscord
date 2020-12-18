@@ -4,12 +4,14 @@ import com.github.razeasdf.music.AudioManager;
 import com.github.razeasdf.music.MusicManager;
 import com.github.razeasdf.music.PlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import me.koply.kcommando.integration.impl.javacord.JavacordCommand;
-import me.koply.kcommando.internal.Commando;
-import me.koply.kcommando.internal.KRunnable;
+
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
+
+import me.koply.kcommando.integration.impl.javacord.JavacordCommand;
+import me.koply.kcommando.internal.Commando;
+import me.koply.kcommando.internal.KRunnable;
 
 @Commando(name = "Loop", aliases = "loop")
 public class Loop extends JavacordCommand {

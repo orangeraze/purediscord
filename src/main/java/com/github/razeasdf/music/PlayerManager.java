@@ -15,16 +15,17 @@ public class PlayerManager {
      * This is only here since we want to initialize the thing
      * from the start, from the YouTube Source, etc.
      */
-    public static void init(){
+    public static void init() {
         // Registers YouTubeAudioSearch with allow search.
         manager.registerSourceManager(new YoutubeAudioSourceManager(true));
     }
 
     /**
      * Retrieves the AudioPlayerManager.
+     *
      * @return AudioPlayerManager.
      */
-    public static AudioPlayerManager getManager(){
+    public static AudioPlayerManager getManager() {
         return manager;
     }
 }

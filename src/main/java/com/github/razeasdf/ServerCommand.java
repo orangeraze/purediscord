@@ -13,8 +13,8 @@ public abstract class ServerCommand implements MessageCreateListener {
     rather than copy pasting the same stuff all over again.
      */
 
-    private String command;
-    private String prefix = ".";
+    private final String command;
+    private final String prefix = ".";
 
     protected ServerCommand(String command) {
         this.command = command;
