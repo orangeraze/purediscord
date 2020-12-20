@@ -1,9 +1,9 @@
 package com.github.razeasdf.commands;
 
 import com.github.razeasdf.LavaplayerAudioSource;
-import com.github.razeasdf.music.AudioManager;
 import com.github.razeasdf.music.MusicManager;
 import com.github.razeasdf.music.PlayerManager;
+import com.github.razeasdf.utils.BotUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -14,103 +14,112 @@ import me.koply.kcommando.internal.Commando;
 import me.koply.kcommando.internal.KRunnable;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.audio.AudioSource;
-import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.awt.*;
+
 @Commando(name = "Play the music!", aliases = "play")
 public class Play extends JavacordCommand {
-    //    String message = event.getMessageContent();
     // We retrieve the AudioPlayerManager from the PlayerManager.
-    private final AudioPlayerManager manager = PlayerManager.getManager();
+    private static final AudioPlayerManager manager = PlayerManager.getManager();
 
     public Play() {
-        getInfo().setOnFalseCallback((KRunnable<MessageCreateEvent>) event -> event.getMessage().addReaction("⛔"));
+        getInfo().setOnFalseCallback((KRunnable<MessageCreateEvent>) event -> {
+            event.getMessage().addReaction("⛔");
+        });
+    }
+
+    private static boolean isUrl(String argument) {
+        return argument.startsWith("https://") || argument.startsWith("http://");
+    }
+
+    public static void playMusic(MessageCreateEvent event, String query) {
+        AudioConnection audioConnection = event.getServer().orElseThrow().getAudioConnection().orElseThrow();
+        MusicManager m = MusicManager.getByEvent(event);
+        AudioSource audio = new LavaplayerAudioSource(event.getApi(), m.player);
+
+        audioConnection.setAudioSource(audio);
+        audioConnection.setSelfDeafened(true);
+        manager.loadItemOrdered(m,
+                isUrl(query) ? query : "ytsearch: " + query.replace("!play ", ""),
+                new AudioLoadResultHandler() {
+
+                    @Override
+                    public void trackLoaded(AudioTrack audioTrack) {
+                        m.scheduler.queue(audioTrack);
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setAuthor("Meeme?")
+                                .setTitle(String.format("Added to queue: [%s](%s)",
+                                        audioTrack.getInfo().title,
+                                        audioTrack.getInfo().uri));
+                        event.getChannel().sendMessage(embed);
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                        if (audioPlaylist.isSearchResult()) {
+                            m.scheduler.queue(audioPlaylist.getTracks().get(0));
+                            EmbedBuilder embed = new EmbedBuilder()
+                                    .setAuthor("Meeme?")
+                                    .setColor(Color.RED)
+                                    .setDescription(String.format("Added to queue: __**[%s](%s)**__ by <@%s>",
+                                            audioPlaylist.getTracks().get(0).getInfo().title,
+                                            audioPlaylist.getTracks().get(0).getInfo().uri,
+                                            event.getMessageAuthor().getIdAsString()));
+                            event.getChannel().sendMessage(embed);
+                        } else {
+                            audioPlaylist.getTracks().forEach(m.scheduler::queue);
+                            EmbedBuilder embed = new EmbedBuilder()
+                                    .setAuthor("Meeme?")
+                                    .setColor(Color.RED)
+                                    .setDescription(String.format("Queued __**%s**__ tracks by <@%s>",
+                                            audioPlaylist.getTracks().size(),
+                                            event.getMessageAuthor().getIdAsString()));
+                            event.getChannel().sendMessage(embed);
+                        }
+                    }
+
+                    @Override
+                    public void noMatches() {
+                        event.getChannel().sendMessage("Error: No matches!");
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException e) {
+                        event.getChannel().sendMessage("Error: load failed!");
+                    }
+                });
     }
 
     @Override
-    public boolean handle(MessageCreateEvent event, String[] args) {
+    public boolean handle(MessageCreateEvent event) {
+        String query = event.getMessageContent();
 
         event.getMessageAuthor().getConnectedVoiceChannel().ifPresentOrElse(voiceChannel -> {
-                    if (voiceChannel.canYouConnect() && voiceChannel.canYouSee() && voiceChannel.hasPermission(event.getApi().getYourself(), PermissionType.SPEAK)) {
-
-                        MusicManager m = AudioManager.get(event.getChannel().getId());
-                        String[] query = event.getMessageContent().split(" ");
-                        Server server = event.getServer().get();
-
-                        if (!voiceChannel.isConnected(event.getApi().getYourself()) && server.getAudioConnection().isEmpty()) {
-
-                            voiceChannel.connect().thenAccept(audioConnection -> {
-                                AudioSource audio = new LavaplayerAudioSource(event.getApi(), m.player);
-                                audioConnection.setAudioSource(audio);
-                                playMusic(event, m, query, audioConnection);
-                            });
-
-                            System.out.println(query[1]);
-
-                        } else if (server.getAudioConnection().isPresent()) {
-                            server.getAudioConnection().ifPresent(audioConnection -> {
-                                if (audioConnection.getChannel().getId() == voiceChannel.getId()) {
-                                    AudioSource audio = audioConnection.getAudioSource().get();
-                                    playMusic(event, m, query, audioConnection);
-                                } else
-                                    event.getChannel().sendMessage("You are not connected with the same channel as the bot.");
-                            });
+                    if (BotUtil.canSeeAndConnect(event)) {
+                        Server server = event.getServer().orElseThrow();
+                        if (BotUtil.isNotConnected(event)) {
+                            BotUtil.connectAndPlay(event, query);
+                        } else {
+                            if (BotUtil.hasAudioConnection(event)) {
+                                server.getAudioConnection().ifPresent(audioConnection -> {
+                                    if (BotUtil.isConnectedToUsersChannel(voiceChannel)) {
+                                        playMusic(event, query);
+                                    } else {
+                                        event.getChannel().sendMessage("You are not connected with the same channel as the bot.");
+                                    }
+                                });
+                            }
                         }
-                    } else
+                    } else {
                         event.getChannel().sendMessage("Either I cannot connect, cannot see, or do not have the permission to speak on the channel.");
+                    }
                 },
                 () -> event.getChannel().sendMessage("You are not connected in any voice channel."));
         return true;
 
     }
 
-    private void playMusic(MessageCreateEvent event, MusicManager m, String[] query, AudioConnection audioConnection) {
-        audioConnection.setSelfDeafened(true);
-        manager.loadItem(query[1], new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack audioTrack) {
-                event.getChannel().sendMessage("Added to queue!");
-                m.scheduler.queue(audioTrack);
-
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                event.getChannel().sendMessage("Playlist loaded!");
-            }
-
-            @Override
-            public void noMatches() {
-                event.getChannel().sendMessage("Error: No matches!");
-            }
-
-            @Override
-            public void loadFailed(FriendlyException e) {
-                event.getChannel().sendMessage("Error: load failed!");
-            }
-        });
-    }
 }
-
-//            String query = event.getMessageContent().replace("!" + args[0] + " ", "");
-//            System.out.println(query);
-//            if (!voiceChannel.isConnected(event.getApi().getYourself()) && !(server.getAudioConnection().isPresent()))
-//                voiceChannel.connect().thenAccept(audioConnection -> {
-//                    AudioSource audio = new LavaplayerAudioSource(event.getApi(), m.player);
-//                    audioConnection.setAudioSource(audio);
-//                    play(query, event.getServerTextChannel().get(), m);
-//                });
-//            else if (server.getAudioConnection().isPresent()) {
-//                server.getAudioConnection().ifPresent(audioConnection -> {
-//                    if (audioConnection.getChannel().getId() == voiceChannel.getId()) {
-//                        // Create an audio source and add to audio connection queue, this is where we use the ServerMusicManager as well.
-//                        AudioSource audio = new LavaplayerAudioSource(event.getApi(), m.player);
-//                        audioConnection.setAudioSource(audio);
-//                    } else {
-//                        // Tell the user that we cannot connect, or see, or speak in the channel.
-//                        event.getChannel().sendMessage("Either I cannot connect, cannot see, or do not have the permission to speak on the channel.");
-//                    }
-//                });
-//            }
-//        }, () -> event.getChannel().sendMessage("You are not connected in any voice channel."));

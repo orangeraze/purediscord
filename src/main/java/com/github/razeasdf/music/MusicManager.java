@@ -3,6 +3,7 @@ package com.github.razeasdf.music;
 import com.github.razeasdf.TrackScheduler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import org.javacord.api.event.message.MessageCreateEvent;
 
 public class MusicManager {
 
@@ -24,6 +25,11 @@ public class MusicManager {
         scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
     }
+
+    public static MusicManager getByEvent(MessageCreateEvent event) {
+        return AudioManager.get(event.getChannel().getId());
+    }
+
 }
 
 //import com.github.razeasdf.TrackScheduler;

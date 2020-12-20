@@ -48,7 +48,6 @@ public class Main extends JavacordIntegration {
                 .setPrefix(prefix)
                 .build();
 
-
         PlayerManager.init();
 
 

@@ -3,8 +3,6 @@ package com.github.razeasdf.commands;
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.github.razeasdf.music.AudioManager;
 import com.github.razeasdf.music.MusicManager;
-import com.github.razeasdf.music.PlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import me.koply.kcommando.integration.impl.javacord.JavacordCommand;
 import me.koply.kcommando.internal.Commando;
 import me.koply.kcommando.internal.KRunnable;
@@ -20,31 +18,19 @@ public class Filter extends JavacordCommand {
         getInfo().setOnFalseCallback((KRunnable<MessageCreateEvent>) event -> event.getMessage().addReaction("⛔"));
     }
 
-    private final AudioPlayerManager manager = PlayerManager.getManager();
-
     @Override
     public boolean handle(MessageCreateEvent event) {
         MusicManager m = AudioManager.get(event.getChannel().getId());
-        ServerVoiceChannel channel = event.getMessageAuthor().getConnectedVoiceChannel().get();
+        ServerVoiceChannel channel = event.getMessageAuthor().getConnectedVoiceChannel().orElseThrow();
         String[] message = event.getMessageContent().split(" ");
         m.player.setFilterFactory((track, format, output)->{
             TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
-            System.out.println(message[1]);
             timescale.setRate(Double.parseDouble(message[1])); //1.5x normal speed
             return Collections.singletonList(timescale);
         });
 
-//                    audioConnection -> {
-//                AudioConnection connection = audioConnection;
-//                try {
-//                    channel.connect().get();
-//                } catch (InterruptedException | ExecutionException e) {
-//                    e.printStackTrace();
-//                }
         event.getChannel().sendMessage("applied!");
-//            });
         return true;
     }
 }
 
-//        m.player.setFilterFactory(null);
