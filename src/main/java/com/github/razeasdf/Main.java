@@ -18,15 +18,11 @@ public class Main extends JavacordIntegration {
     }
 
     public static JSONObject getConfig() {
-        return new JSONObject(config.toString());
+        return config;
     }
 
     public static String getPrefix() {
         return prefix;
-    }
-
-    public static void setPrefix(String prefix) {
-        Main.prefix = prefix;
     }
 
     public static Main getInstance() {
@@ -34,7 +30,6 @@ public class Main extends JavacordIntegration {
     }
 
     public static void main(String[] args) {
-        // Insert your bot's token here
         String token = System.getenv("BOT_TOKEN");
 
         DiscordApi discordApi = new DiscordApiBuilder()
@@ -50,19 +45,5 @@ public class Main extends JavacordIntegration {
 
         PlayerManager.init();
 
-
-//        discordApi.addMessageCreateListener(event -> {
-//            String message = event.getMessageContent();
-//            String[] messageTwo = message.split(" ");
-//            if (messageTwo[0].equals("!filter") && event.getMessageAuthor().getConnectedVoiceChannel().isPresent()) {
-//                player.setFilterFactory((track, format, output) -> {
-//                    TimescalePcmAudioFilter timescalePcmAudioFilter = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
-//                    timescalePcmAudioFilter.setRate(Double.parseDouble(messageTwo[1]));
-//                        VolumePcmAudioFilter volumePcmAudioFilter = new VolumePcmAudioFilter(output, format.channelCount, format.sampleRate);
-//                        volumePcmAudioFilter.setVolume(Float.parseFloat(messageTwo[2]));
-//                    return Arrays.asList(timescalePcmAudioFilter, volumePcmAudioFilter);
-//                });
-//                event.getChannel().sendMessage("filter applied!");
-//            }
     }
 }

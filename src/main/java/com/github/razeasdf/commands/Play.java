@@ -26,9 +26,7 @@ public class Play extends JavacordCommand {
     private static final AudioPlayerManager manager = PlayerManager.getManager();
 
     public Play() {
-        getInfo().setOnFalseCallback((KRunnable<MessageCreateEvent>) event -> {
-            event.getMessage().addReaction("⛔");
-        });
+        getInfo().setOnFalseCallback((KRunnable<MessageCreateEvent>) event -> event.getMessage().addReaction("⛔"));
     }
 
     private static boolean isUrl(String argument) {
@@ -42,8 +40,9 @@ public class Play extends JavacordCommand {
 
         audioConnection.setAudioSource(audio);
         audioConnection.setSelfDeafened(true);
+        String uri = query.replace("!play ", "");
         manager.loadItemOrdered(m,
-                isUrl(query) ? query : "ytsearch: " + query.replace("!play ", ""),
+                isUrl(uri) ? uri : "ytsearch: " + uri,
                 new AudioLoadResultHandler() {
 
                     @Override
@@ -51,7 +50,7 @@ public class Play extends JavacordCommand {
                         m.scheduler.queue(audioTrack);
                         EmbedBuilder embed = new EmbedBuilder()
                                 .setAuthor("Meeme?")
-                                .setTitle(String.format("Added to queue: [%s](%s)",
+                                .setDescription(String.format("Added to queue: [%s](%s)",
                                         audioTrack.getInfo().title,
                                         audioTrack.getInfo().uri));
                         event.getChannel().sendMessage(embed);
@@ -74,8 +73,9 @@ public class Play extends JavacordCommand {
                             EmbedBuilder embed = new EmbedBuilder()
                                     .setAuthor("Meeme?")
                                     .setColor(Color.RED)
-                                    .setDescription(String.format("Queued __**%s**__ tracks by <@%s>",
+                                    .setDescription(String.format("Queued __**[%s](%s)**__ tracks by <@%s>",
                                             audioPlaylist.getTracks().size(),
+                                            uri,
                                             event.getMessageAuthor().getIdAsString()));
                             event.getChannel().sendMessage(embed);
                         }

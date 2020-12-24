@@ -25,8 +25,8 @@ public class Loop extends JavacordCommand {
 
         event.getMessageAuthor().getConnectedVoiceChannel().ifPresentOrElse(voiceChannel -> {
                     if (voiceChannel.canYouConnect() && voiceChannel.canYouSee() && voiceChannel.hasPermission(event.getApi().getYourself(), PermissionType.SPEAK)) {
-                        MusicManager m = AudioManager.get(event.getChannel().getId());
-                        Server server = event.getServer().get();
+                        MusicManager m = AudioManager.get(event.getServer().orElseThrow().getId());
+                        Server server = event.getServer().orElseThrow();
 
                         if (server.getAudioConnection().isPresent()) {
                             server.getAudioConnection().ifPresent(audioConnection -> {

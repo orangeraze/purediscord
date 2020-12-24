@@ -20,7 +20,7 @@ public class Filter extends JavacordCommand {
 
     @Override
     public boolean handle(MessageCreateEvent event) {
-        MusicManager m = AudioManager.get(event.getChannel().getId());
+        MusicManager m = AudioManager.get(event.getServer().orElseThrow().getId());
         ServerVoiceChannel channel = event.getMessageAuthor().getConnectedVoiceChannel().orElseThrow();
         String[] message = event.getMessageContent().split(" ");
         m.player.setFilterFactory((track, format, output)->{

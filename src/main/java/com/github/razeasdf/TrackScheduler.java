@@ -4,6 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,7 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+
     /**
      * Start the next track, stopping the current one if it is playing.
      */
@@ -73,4 +76,19 @@ public class TrackScheduler extends AudioEventAdapter {
         Collections.shuffle((List<?>) queue);
     }
 
-}
+    public void getQueueInfo(MessageCreateEvent event) {
+        String queueInfo = String.format(1 + ". __**[%s](%s)**__",
+                player.getPlayingTrack().getInfo().title,
+                player.getPlayingTrack().getInfo().uri);
+        int i = 2;
+        for (AudioTrack track: queue) {
+            queueInfo = queueInfo.concat(String.format("\n" + i + ". __**[%s](%s)**__",
+                    track.getInfo().title,
+                    track.getInfo().uri));
+        }
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle("Current queue")
+                    .setDescription(queueInfo);
+            event.getChannel().sendMessage(embed);
+        }
+    }

@@ -7,13 +7,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 public class MusicManager {
 
-    /**
-     * Audio player for the guild.
-     */
     public final AudioPlayer player;
-    /**
-     * Track scheduler for the player.
-     */
     public final TrackScheduler scheduler;
 
     /**
@@ -27,22 +21,7 @@ public class MusicManager {
     }
 
     public static MusicManager getByEvent(MessageCreateEvent event) {
-        return AudioManager.get(event.getChannel().getId());
+        return AudioManager.get(event.getServer().orElseThrow().getId());
     }
 
 }
-
-//import com.github.razeasdf.TrackScheduler;
-//import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-//import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-//
-//public final class MusicManager {
-//    public final AudioPlayer audioPlayer;
-//    public final TrackScheduler scheduler;
-//
-//    public MusicManager(AudioPlayerManager manager) {
-//        audioPlayer = manager.createPlayer();
-//        scheduler = new TrackScheduler(audioPlayer);
-//        audioPlayer.addListener(scheduler);
-//    }
-//}

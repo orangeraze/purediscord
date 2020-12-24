@@ -17,8 +17,8 @@ public class Skip extends JavacordCommand {
     @Override
     public boolean handle(MessageCreateEvent e, String[] args) {
 
-        e.getServer().get().getAudioConnection().ifPresentOrElse(audioConnection -> {
-                    MusicManager m = AudioManager.get(e.getChannel().getId());
+        e.getServer().orElseThrow().getAudioConnection().ifPresentOrElse(audioConnection -> {
+                    MusicManager m = AudioManager.get(e.getServer().orElseThrow().getId());
                     m.scheduler.nextTrack();
                     e.getChannel().sendMessage("Skipped current track");
                 },

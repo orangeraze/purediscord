@@ -17,8 +17,8 @@ public class Stop extends JavacordCommand {
     @Override
     public boolean handle(MessageCreateEvent e, String[] args) {
 
-        e.getServer().get().getAudioConnection().ifPresentOrElse(audioConnection -> {
-                    MusicManager m = AudioManager.get(e.getChannel().getId());
+        e.getServer().orElseThrow().getAudioConnection().ifPresentOrElse(audioConnection -> {
+                    MusicManager m = AudioManager.get(e.getServer().orElseThrow().getId());
                     m.player.stopTrack();
                     audioConnection.close();
                     e.getChannel().sendMessage("Player is stopped");
